@@ -1,93 +1,108 @@
-# Is It Crowdy?
 
-Is It Crowdy? is a mobile-first Progressive Web App that shows approximate crowd levels around:
-- your current location
-- any city you search worldwide
+# Is It Crowdy? — README
 
-The app is built on the T3 stack with Next.js App Router, tRPC, TypeScript, Tailwind CSS, and React Leaflet.
+## App Overview
+
+Is It Crowdy? is a mobile-first Progressive Web App that helps users find places with low, medium, or high crowd levels near their location or in any city worldwide. The app is built with Next.js, TypeScript, Tailwind CSS, tRPC, React Leaflet, OpenStreetMap, and next-pwa.
+
+---
 
 ## Features
 
-- geolocation-based search
-- city search via OpenStreetMap Nominatim geocoding
-- real nearby places fetched from OpenStreetMap Overpass
-- map and list toggle
-- estimated crowd score (0-100) with low/medium/high color coding
-- installable PWA with `next-pwa`
+- **Location Input:** Use device geolocation or search any city globally
+- **Map & List Views:** See real places (cafes, gyms, shops) with color-coded crowd markers
+- **Crowd Level Estimation:** Scores (0–100) based on place type, time, and deterministic jitter
+- **PWA:** Installable, offline-capable, mobile-first UI
+- **Robust Error Handling:** Fallback to mock data if real provider fails
+
+---
 
 ## Tech Stack
 
-- Next.js 15 (App Router)
+- Next.js (App Router)
 - TypeScript
 - Tailwind CSS
-- tRPC + React Query
-- React Leaflet + OpenStreetMap tiles
+- tRPC (API layer)
+- React Query
+- React Leaflet
+- OpenStreetMap tiles
 - next-pwa
+- Prisma (optional)
 
-## Requirements
+---
 
-- Node.js 20+
-- npm 10+
+## Architecture
 
-## Setup
-
-```bash
-npm install
-```
-
-## Development
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
-## Quality Checks
-
-```bash
-npm run check
-```
-
-This runs lint + TypeScript checks.
-
-## Production Build
-
-```bash
-npm run build
-npm run start
-```
-
-In production build, `next-pwa` generates service worker assets in `public/`.
-
-## Project Structure
-
-- `src/app/_components/crowd-near-me.tsx`: main UI and state management
-- `src/app/_components/crowd-map.tsx`: Leaflet map rendering
-- `src/server/api/routers/places.ts`: tRPC places endpoint (live OSM places + crowd estimation)
-- `src/server/api/root.ts`: tRPC root router
+- `src/app/_components/is-it-crowdy.tsx`: Main UI, state management
+- `src/app/_components/crowd-map.tsx`: Map rendering
+- `src/server/api/routers/places.ts`: tRPC endpoint for real places + crowd estimation
 - `public/manifest.json`: PWA manifest
-- `PRD.md`: roadmap and milestones
+- `public/icon-192.svg`, `public/icon-512.svg`: App icons
 
-## API Notes
+---
 
-Current API:
-- `places.nearby`
-	- input: `{ lat: number; lng: number } | undefined`
-	- output: `NearbyPlace[]`
-	- behavior: live nearby places from OpenStreetMap Overpass, crowd level estimated server-side
+## Setup & Usage
 
-## Known Limitations
+1. **Clone the repo:**
+	```bash
+	git clone <repo-url>
+	cd isitcrowdy
+	npm install
+	```
 
-- crowd level is estimated and not an official occupancy feed
-- no autocomplete for city search yet
-- no offline persisted last-results UX yet
+2. **Run locally:**
+	```bash
+	npm run dev
+	```
+	Open http://localhost:3000 in your browser.
 
-## Next Steps
+3. **Build for production:**
+	```bash
+	npm run build
+	npm start
+	```
 
-See `PRD.md` milestones:
-- M1: stabilize MVP
-- M2: real worldwide crowd provider integration
-- M3: autocomplete UX
-- M4: tests and CI
-- M5: offline experience
+4. **Install as PWA:**
+	- On mobile/desktop browsers, tap "Add to Home Screen" or install prompt.
+
+---
+
+## How It Works
+
+- **Geolocation:** App requests device location; user can deny or allow.
+- **City Search:** User enters city name; app geocodes via OpenStreetMap Nominatim.
+- **Places API:** tRPC endpoint fetches real places from Overpass API, estimates crowd level, falls back to mock if needed.
+- **Map/List:** Toggle between map and list views; markers colored by crowd score.
+- **PWA:** Manifest and service worker enable install and offline support.
+
+---
+
+## API Contract
+
+- `places.nearby`: `{ lat, lng }` → `NearbyPlace[]`
+  - `NearbyPlace`: `{ name, lat, lng, crowdLevel }`
+
+---
+
+## Limitations & Roadmap
+
+- Crowd score is estimated, not live
+- No autocomplete for city search yet
+- Offline cache is basic (last results only)
+- No user accounts or analytics
+- See PRD.md for full roadmap and milestones
+
+---
+
+## Contributing
+
+- Fork, clone, and run `npm install`
+- Use `npm run dev` for development
+- Run `npm run check` before PRs
+- Update PRD.md and README.md for new features
+
+---
+
+## License
+
+MIT

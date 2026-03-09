@@ -1,105 +1,81 @@
-# IS-IT-CROWDY?
 
-Create a simple Progressive Web App using Next.js and the T3 stack (https://create.t3.gg/).
+# IS IT CROWDY? — Product Requirements & Build Guide
+
+## Overview
+
+Is It Crowdy? is a mobile-first Progressive Web App that shows approximate crowd levels near the user or in any city worldwide. The app is built with Next.js (App Router), TypeScript, Tailwind CSS, tRPC, React Leaflet, OpenStreetMap, and next-pwa.
+
+---
 
 ## 1. Product Goal
 
-Build a lightweight, mobile-first app that shows approximate crowd levels around a selected location.
+Build a lightweight, installable app that helps users decide where to go based on estimated crowd levels. Users can search by their device location or any city globally.
 
-The app should support two entry modes:
-- device location (geolocation)
-- manual city search (worldwide)
+---
 
 ## 2. Target Users
 
-- people deciding where to go now (gym, cafes, markets)
-- travelers searching crowd density in unfamiliar cities
-- users needing quick low/medium/high crowd signals without heavy onboarding
+- People deciding where to go (gym, cafes, markets)
+- Travelers searching crowd density in unfamiliar cities
+- Anyone needing quick low/medium/high crowd signals
 
-## 3. Scope (MVP)
+---
 
-### In Scope
-- geolocation permission + fallback behavior
-- city search via geocoding (global)
-- map view with crowd markers and popup details
-- list view with distance and crowd indicators
-- mock crowd data generation around selected coordinates
-- installable PWA baseline (manifest + service worker)
+## 3. Features & Flows
 
-### Out of Scope (for now)
-- user accounts/auth
-- historical analytics dashboards
-- payment/subscription
-- admin CMS
+### Location Input
+- Geolocation permission (browser API)
+- Manual city search (OpenStreetMap Nominatim geocoding)
+- Latest action (city or geolocation) sets the search area
+
+### Map & List Views
+- Map centered on selected location
+- Markers for real places (cafes, gyms, shops, etc.)
+- Marker color: green (low), orange (medium), red (high)
+- Popup: place name, crowd level percentage
+- List: place name, distance, crowd level, color indicator
+
+### Crowd Data
+- Real places fetched from OpenStreetMap Overpass API
+- Crowd level is an estimated score (0–100) based on place type, time, and deterministic jitter
+- Fallback to mock data if Overpass fails
+
+### UI & PWA
+- Mobile-first, minimal UI (Tailwind CSS)
+- Simple header: "Is It Crowdy?"
+- Toggle between Map/List
+- Installable PWA (manifest.json, service worker)
+
+---
 
 ## 4. Tech Stack
 
-- Next.js (App Router)
+- Next.js 15+ (App Router)
 - TypeScript
 - Tailwind CSS
 - tRPC (API layer)
+- React Query (via tRPC hooks)
 - React Leaflet (maps)
 - OpenStreetMap tiles
 - next-pwa
-- React Query (via tRPC hooks)
 - Prisma (optional, for future persistence)
 
-## 5. Current Implementation Status
+---
 
-### Completed
-- T3 project scaffolded and configured
-- geolocation flow implemented
-- manual city search implemented (Nominatim geocoding)
-- map/list toggle implemented
-- crowd marker colors and popup implemented
-- tRPC places router with mock nearby data implemented
-- PWA baseline configured (`manifest.json`, service worker generation)
+## 5. Architecture & File Structure
 
-### Partial / Needs Improvement
-- crowd data is still mock (not sourced from real worldwide provider)
-- no city autocomplete/suggestion UX yet
-- no offline "last successful results" cache strategy yet
-- no automated tests yet
-- README still generic and not project-specific
+- `src/app/_components/is-it-crowdy.tsx`: main UI and state management
+- `src/app/_components/crowd-map.tsx`: Leaflet map rendering
+- `src/server/api/routers/places.ts`: tRPC endpoint for real places + crowd estimation
+- `src/server/api/root.ts`: tRPC root router
+- `public/manifest.json`: PWA manifest
+- `public/icon-192.svg`, `public/icon-512.svg`: app icons
+- `README.md`: setup, usage, architecture, API
+- `PRD.md`: requirements, roadmap, acceptance criteria
 
-## 6. Functional Requirements
+---
 
-### FR-1 Location Input
-- user can grant geolocation permission to set map center
-- user can enter a city name manually
-- if both are available, latest explicit action wins
-
-### FR-2 City Search (Worldwide)
-- user types a city and submits search
-- app resolves city to coordinates
-- app updates selected search area label and map center
-- app handles city-not-found and network errors gracefully
-
-### FR-3 Crowd Visualization
-- each place has `crowdLevel` in range 0..100
-- marker color mapping:
-  - 0..30 -> green
-  - 31..70 -> orange
-  - 71..100 -> red
-- marker popup shows place name and crowd percentage
-
-### FR-4 List View
-- displays place name, crowd percentage, crowd level label, distance
-- distance is computed from selected coordinates when available
-
-### FR-5 PWA
-- app is installable on supported mobile/desktop browsers
-- service worker is generated in production builds
-- manifest metadata is valid and includes icons
-
-## 7. Non-Functional Requirements
-
-- mobile-first responsive UI
-- first load should remain lightweight
-- API calls should be cached with React Query defaults
-- graceful degradation when geolocation/geocoding fails
-
-## 8. Data Model (Current)
+## 6. Data Model
 
 ```ts
 type NearbyPlace = {
@@ -110,110 +86,105 @@ type NearbyPlace = {
 };
 ```
 
-## 9. API Contract (Current)
+---
+
+## 7. API Contract
 
 ### tRPC: `places.nearby`
 - input: `{ lat: number; lng: number } | undefined`
 - output: `NearbyPlace[]`
-- behavior: returns mock places around provided coordinates
+- behavior: returns real places from OpenStreetMap Overpass, with estimated crowd level
 
-## 10. Roadmap and Next Steps
+---
 
-### Milestone M1 - Stabilize Current MVP
-Goal: make the current implementation production-safe for demo use.
+## 8. Build Steps
 
-Tasks:
-- remove T3 demo leftovers (`post` demo UI/router if unused)
-- improve error/empty/loading states
-- update `README.md` with real setup and usage instructions
-- add environment and API usage notes
+1. Scaffold the project with `npm create t3-app@latest` (App Router, tRPC, Tailwind)
+2. Install dependencies: `react-leaflet`, `leaflet`, `next-pwa`, `@types/leaflet`
+3. Configure Tailwind and global styles
+4. Implement geolocation and city search in main UI component
+5. Integrate OpenStreetMap Nominatim for city geocoding
+6. Implement tRPC `places.nearby` endpoint:
+   - fetch real places from Overpass API
+   - estimate crowd level per place
+   - fallback to mock if Overpass fails
+7. Build map and list views with React Leaflet
+8. Configure PWA (manifest.json, icons, next-pwa)
+9. Add error/loading/empty states for all flows
+10. Test on mobile and desktop
 
-Acceptance criteria:
-- no dead demo code in user-facing app path
-- clear UI messages for loading/error/empty states
-- a new contributor can run app in <5 minutes using README
+---
 
-### Milestone M2 - Real Worldwide Crowd Data Integration
-Goal: replace mock crowd score with realistic global estimate.
+## 9. Functional Requirements
 
-Tasks:
-- choose external data strategy (single provider or score fusion)
-- create `crowdProvider` server adapter interface
-- map provider outputs to normalized `crowdLevel` 0..100
-- implement fallback to mock when provider unavailable
-- add rate-limit and timeout handling
+- User can search by geolocation or city
+- Map/list toggle
+- Real places shown with crowd score
+- Responsive, installable UI
+- Robust error handling and fallback
 
-Acceptance criteria:
-- city search returns provider-based crowd estimate
-- normalized score is stable across at least 5 major cities
-- failure path still returns usable response (fallback)
+---
 
-### Milestone M3 - Search UX Upgrade
-Goal: improve speed and usability of global city search.
+## 10. Non-Functional Requirements
 
-Tasks:
-- add debounced city autocomplete suggestions
-- keyboard navigation for suggestions
-- show country/region disambiguation
-- keep recent searches locally
+- Mobile-first responsive UI
+- Lightweight first load
+- API calls cached with React Query
+- Graceful degradation for geolocation/geocoding failures
 
-Acceptance criteria:
-- user can select city in <=3 interactions on average
-- ambiguous city names are clearly disambiguated
+---
 
-### Milestone M4 - Reliability and Quality
-Goal: introduce minimum engineering quality gates.
+## 11. Roadmap & Milestones
 
-Tasks:
-- add unit tests (distance math, crowd color mapping, normalization)
-- add integration tests for tRPC `places.nearby`
-- add e2e flow test (search city -> map/list update)
-- add CI workflow for lint/typecheck/test
+### M1: MVP Stabilization
+- Remove demo leftovers
+- Improve error/empty/loading states
+- Update README and PRD
 
-Acceptance criteria:
-- CI fails on lint/type errors/tests
-- core user flow covered by at least one e2e scenario
+### M2: Real Crowd Data Integration
+- Integrate external crowd data provider (optional)
+- Normalize crowd score
+- Robust fallback
 
-### Milestone M5 - PWA Offline Experience
-Goal: useful behavior under poor connectivity.
+### M3: Search UX Upgrade
+- Add city autocomplete
+- Keyboard navigation
+- Recent searches
 
-Tasks:
-- persist last successful city + places in local storage or IndexedDB
-- show "last updated" timestamp
-- show offline badge and fallback content
+### M4: Reliability & Quality
+- Add unit/integration/e2e tests
+- CI workflow for lint/typecheck/test
 
-Acceptance criteria:
-- user sees last known results when offline
-- offline/online transitions are clearly communicated
+### M5: PWA Offline Experience
+- Persist last successful results
+- Show offline badge and fallback
 
-## 11. Proposed Execution Plan (Next 2-3 Sessions)
+---
 
-### Session A
-- M1 cleanup and documentation updates
-- prepare `crowdProvider` interface skeleton (without real provider)
+## 12. Acceptance Criteria
 
-### Session B
-- M2 first provider integration + normalization logic
-- robust fallback and error taxonomy
+- Implementation is complete and type-safe
+- Lint/typecheck/build pass
+- UX states: loading, success, failure
+- README and PRD updated
 
-### Session C
-- M3 autocomplete UX
-- initial automated tests from M4
+---
 
-## 12. Risks and Mitigations
+## 13. Risks & Mitigations
 
-- Risk: real worldwide crowd data providers may be costly or unreliable.
-  - Mitigation: provider abstraction + fallback + caching.
-- Risk: geocoding rate limits for public endpoints.
-  - Mitigation: debounce, local caching, optional server proxy.
-- Risk: noisy crowd scores reduce trust.
-  - Mitigation: score normalization and confidence labels.
+- External crowd data providers may be costly/unreliable
+  - Mitigation: provider abstraction + fallback + caching
+- Geocoding rate limits
+  - Mitigation: debounce, local caching, optional proxy
+- Noisy crowd scores
+  - Mitigation: normalization and confidence labels
 
-## 13. Definition of Done (Feature-Level)
+---
 
-A feature is considered done when:
-- implementation is complete and type-safe
-- lint/typecheck/build pass
-- UX states include loading, success, and failure
-- README or PRD is updated if behavior changed
+## 14. How to Contribute
+
+- Fork the repo, clone, and run `npm install`
+- Use `npm run dev` for local development
+- Run `npm run check` before PRs
+- Update PRD.md and README.md for new features
 
