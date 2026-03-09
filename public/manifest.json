@@ -1,6 +1,6 @@
 {
-  "name": "Crowd Near Me",
-  "short_name": "CrowdNearMe",
+  "name": "Is It Crowdy?",
+  "short_name": "IsItCrowdy",
   "description": "A lightweight app that shows approximate nearby crowd levels.",
   "start_url": "/",
   "display": "standalone",

@@ -1,29 +1,93 @@
-# Create T3 App
+# Is It Crowdy?
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Is It Crowdy? is a mobile-first Progressive Web App that shows approximate crowd levels around:
+- your current location
+- any city you search worldwide
 
-## What's next? How do I make an app with this?
+The app is built on the T3 stack with Next.js App Router, tRPC, TypeScript, Tailwind CSS, and React Leaflet.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Features
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- geolocation-based search
+- city search via OpenStreetMap Nominatim geocoding
+- real nearby places fetched from OpenStreetMap Overpass
+- map and list toggle
+- estimated crowd score (0-100) with low/medium/high color coding
+- installable PWA with `next-pwa`
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Tech Stack
 
-## Learn More
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- tRPC + React Query
+- React Leaflet + OpenStreetMap tiles
+- next-pwa
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Requirements
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- Node.js 20+
+- npm 10+
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Setup
 
-## How do I deploy this?
+```bash
+npm install
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Development
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Quality Checks
+
+```bash
+npm run check
+```
+
+This runs lint + TypeScript checks.
+
+## Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+In production build, `next-pwa` generates service worker assets in `public/`.
+
+## Project Structure
+
+- `src/app/_components/crowd-near-me.tsx`: main UI and state management
+- `src/app/_components/crowd-map.tsx`: Leaflet map rendering
+- `src/server/api/routers/places.ts`: tRPC places endpoint (live OSM places + crowd estimation)
+- `src/server/api/root.ts`: tRPC root router
+- `public/manifest.json`: PWA manifest
+- `PRD.md`: roadmap and milestones
+
+## API Notes
+
+Current API:
+- `places.nearby`
+	- input: `{ lat: number; lng: number } | undefined`
+	- output: `NearbyPlace[]`
+	- behavior: live nearby places from OpenStreetMap Overpass, crowd level estimated server-side
+
+## Known Limitations
+
+- crowd level is estimated and not an official occupancy feed
+- no autocomplete for city search yet
+- no offline persisted last-results UX yet
+
+## Next Steps
+
+See `PRD.md` milestones:
+- M1: stabilize MVP
+- M2: real worldwide crowd provider integration
+- M3: autocomplete UX
+- M4: tests and CI
+- M5: offline experience

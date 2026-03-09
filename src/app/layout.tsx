@@ -6,7 +6,7 @@ import { Geist } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  title: "Crowd Near Me",
+  title: "Is It Crowdy?",
   description: "A lightweight PWA to check nearby crowd levels.",
   manifest: "/manifest.json",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
@@ -22,7 +22,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body>
+      <body suppressHydrationWarning>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

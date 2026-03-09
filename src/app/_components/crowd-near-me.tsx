@@ -50,7 +50,7 @@ function getDistanceKm(from: UserLocation, to: NearbyPlace) {
   return earthRadiusKm * c;
 }
 
-export function CrowdNearMe() {
+export function IsItCrowdy() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [cityQuery, setCityQuery] = useState("");
@@ -166,9 +166,12 @@ export function CrowdNearMe() {
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 pb-8 pt-6">
       <header className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Crowd Near Me</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Is It Crowdy?</h1>
         <p className="mt-1 text-sm text-slate-600">
           Check approximate crowd levels around your current location or search any city in the world.
+        </p>
+        <p className="mt-1 text-xs text-slate-500">
+          Places are fetched from OpenStreetMap in real time. Crowd level is an estimated score.
         </p>
         <form onSubmit={onCitySubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
@@ -225,7 +228,7 @@ export function CrowdNearMe() {
 
       {placesQuery.isLoading ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-600 shadow-sm">
-          Loading nearby places...
+          Finding crowd data for this area...
         </div>
       ) : null}
 
@@ -236,6 +239,11 @@ export function CrowdNearMe() {
       ) : null}
 
       {!placesQuery.isLoading && !placesQuery.error ? (
+        (placesQuery.data?.length ?? 0) === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-600 shadow-sm">
+            No places found for this area yet. Try another city or use your current location.
+          </div>
+        ) :
         viewMode === "map" ? (
           <CrowdMap userLocation={userLocation} places={placesQuery.data ?? []} />
         ) : (

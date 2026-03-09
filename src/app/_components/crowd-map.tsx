@@ -23,7 +23,21 @@ function RecenterMap({ center }: { center: [number, number] }) {
   const map = useMap();
 
   useEffect(() => {
-    map.setView(center, map.getZoom(), { animate: true });
+    let cancelled = false;
+
+    map.whenReady(() => {
+      if (cancelled) return;
+
+      const container = map.getContainer();
+      if (!container?.isConnected) return;
+
+      map.invalidateSize();
+      map.setView(center, map.getZoom(), { animate: false });
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [center, map]);
 
   return null;
