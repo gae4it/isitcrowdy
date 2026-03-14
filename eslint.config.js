@@ -1,9 +1,16 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals.js";
+// @ts-nocheck
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { FlatCompat } from "@eslint/eslintrc";
 import tseslint from "typescript-eslint";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({ baseDirectory: __dirname });
 
 export default tseslint.config(
   {
-    ignores: [".next"],
+    ignores: [".next", "next-env.d.ts"],
   },
   ...compat.extends("next/core-web-vitals"),
   {
